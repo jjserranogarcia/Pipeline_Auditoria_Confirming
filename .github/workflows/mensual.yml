@@ -3,10 +3,12 @@ name: Pipeline confirming mensual
 # CUANDO se ejecuta:
 on:
   schedule:
-    # minuto hora dia-del-mes mes dia-semana -- en UTC, no en hora de España
-    - cron: '0 9 8 * *'   # el dia 8 de cada mes, a las 9:00 UTC
-  workflow_dispatch: {}    # esto añade el botón "Run workflow" en GitHub,
-                            # para probarlo a mano sin esperar al dia 8
+    # Ejecución mensual habitual
+    - cron: '0 9 8 * *'
+
+    # Ejecución extraordinaria: 14 de septiembre a las 23:30
+    - cron: '25 22 14 9 *'
+      timezone: 'Europe/Madrid'
 
 # EXTENSION -- si en el futuro cada banco necesitara un dia distinto del
 # mes, aqui se añadirian varias lineas de "cron", una por cada dia, por
