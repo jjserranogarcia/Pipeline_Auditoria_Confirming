@@ -1,0 +1,47 @@
+name: Pipeline confirming mensual
+
+# CUANDO se ejecuta:
+on:
+  schedule:
+    # minuto hora dia-del-mes mes dia-semana -- en UTC, no en hora de España
+    - cron: '0 9 8 * *'   # el dia 8 de cada mes, a las 9:00 UTC
+  workflow_dispatch: {}    # esto añade el botón "Run workflow" en GitHub,
+                            # para probarlo a mano sin esperar al dia 8
+
+# EXTENSION -- si en el futuro cada banco necesitara un dia distinto del
+# mes, aqui se añadirian varias lineas de "cron", una por cada dia, por
+# ejemplo:
+#   - cron: '0 9 8 * *'    # bancos con dia 8
+#   - cron: '0 9 15 * *'   # bancos con dia 15
+# El script (Pipeline_Auditoria_Confirming.py) sabria distinguir cual de
+# los cron ha disparado la ejecucion por la variable de entorno
+# GITHUB_EVENT_SCHEDULE, y procesaria solo los bancos que le tocaran ese
+# dia (ver el comentario "EXTENSION" al final de ese archivo).
+
+jobs:
+  procesar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el codigo del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar LibreOffice y Tesseract (aplicaciones del sistema)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libreoffice tesseract-ocr tesseract-ocr-spa poppler-utils
+
+      - name: Instalar las librerias de Python
+        run: |
+          pip install pypdf openpyxl pytesseract pillow pydrive2 oauth2client reportlab
+
+      - name: Ejecutar el pipeline
+        env:
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+        run: python Pipeline_Auditoria_Confirming.py
