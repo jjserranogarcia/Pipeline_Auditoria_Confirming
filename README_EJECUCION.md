@@ -4,7 +4,7 @@ El pipeline procesa los documentos de Google Drive y genera un PDF diario de mon
 
 `Bonificaciones Confirming/Historial Bonificaciones de Confirming`
 
-El informe se llama `Documentos Procesados DD-MM-AAAA.pdf`. Se crea aunque no haya documentos pendientes. Si la acción se ejecuta varias veces el mismo día, se actualiza el mismo archivo usando la fecha de España.
+El informe se llama `Documentos Procesados DD-MM-AAAA.pdf`. Se crea aunque no haya documentos pendientes. Si la acción se ejecuta varias veces el mismo día, se sube la revisión nueva y la anterior se envía a la papelera de Drive. De esta forma solo queda visible el informe más reciente y se evita que Drive muestre una previsualización antigua. La fecha utilizada es la de España.
 
 ## Archivos que van en GitHub
 

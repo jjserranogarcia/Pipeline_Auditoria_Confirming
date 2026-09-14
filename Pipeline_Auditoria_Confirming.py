@@ -182,15 +182,14 @@ def subir_archivo(ruta_local, nombre, id_carpeta):
 
 
 def subir_o_actualizar_archivo(ruta_local, nombre, id_carpeta):
-    """Sube un archivo o actualiza el que ya tenga ese mismo nombre.
-    Así, si la acción se ejecuta varias veces el mismo día, el informe
-    diario conserva un único archivo y el mismo enlace de Drive."""
-    existente = next((a for a in listar_archivos(id_carpeta) if a["title"] == nombre), None)
-    if existente:
-        existente.SetContentFile(ruta_local)
-        existente.Upload()
-    else:
-        subir_archivo(ruta_local, nombre, id_carpeta)
+    """Sube la revisión nueva y retira las anteriores del mismo día.
+    Crear un archivo nuevo evita que Drive muestre una previsualización
+    almacenada de la revisión anterior. La subida se hace antes de mandar
+    los antiguos a la papelera para no perder el informe si aquella falla."""
+    anteriores = [a for a in listar_archivos(id_carpeta) if a["title"] == nombre]
+    subir_archivo(ruta_local, nombre, id_carpeta)
+    for anterior in anteriores:
+        anterior.Trash()
 
 
 def mover_archivo(archivo_drive, id_carpeta_destino):
@@ -848,17 +847,19 @@ def preparar_resumen(subidos):
         por_combinacion.setdefault((sociedad, banco), []).append(nombre_mostrar)
 
     total_esperado = len(SOCIEDADES) * len(BANCOS)
+    cantidad_recibida = len(subidos)
+    unidad = "documento" if cantidad_recibida == 1 else "documentos"
     es_habitual = all(len(por_combinacion.get((sociedad, banco), [])) == 1
                        for sociedad in SOCIEDADES for banco in BANCOS)
 
     if es_habitual:
         cabecera = (f"Documentos procesados de forma HABITUAL, se ha subido 1 documento para cada "
-                    f"banco en cada sociedad. En total se han procesado {len(subidos)} documentos "
+                    f"banco en cada sociedad. En total se han procesado {cantidad_recibida} {unidad} "
                     f"cuando lo habitual son {total_esperado} documentos.")
     else:
         cabecera = (f"Documentos procesados de forma EXTRAORDINARIA, revisar los archivos que se han "
-                    f"subido para cada banco en cada sociedad. En total se han procesado {len(subidos)} "
-                    f"documentos cuando lo habitual son {total_esperado} documentos.")
+                    f"subido para cada banco en cada sociedad. En total se han procesado "
+                    f"{cantidad_recibida} {unidad} cuando lo habitual son {total_esperado} documentos.")
 
     return es_habitual, cabecera, por_combinacion
 
@@ -870,6 +871,7 @@ def generar_pdf_resumen(subidos):
     nombre_pdf = f"Documentos Procesados {fecha_nombre}.pdf"
     ruta_pdf = f"/tmp/{nombre_pdf}"
     es_habitual, cabecera, por_combinacion = preparar_resumen(subidos)
+    print(f"  Generando PDF de monitorización con {len(subidos)} documento(s) recibido(s).")
 
     estilos_base = getSampleStyleSheet()
     estilo_titulo = ParagraphStyle(
