@@ -1,28 +1,21 @@
 name: Pipeline confirming mensual
 
-# CUANDO se ejecuta:
 on:
   schedule:
-    # Ejecución mensual habitual
+    # Ejecución mensual habitual: día 8 a las 09:00 UTC
     - cron: '0 9 8 * *'
 
-    # Ejecución extraordinaria: 14 de septiembre a las 23:30
-    - cron: '25 22 14 9 *'
+    # Ejecución extraordinaria: 14 de septiembre a las 22:45 de España
+    - cron: '45 22 14 9 *'
       timezone: 'Europe/Madrid'
 
-# EXTENSION -- si en el futuro cada banco necesitara un dia distinto del
-# mes, aqui se añadirian varias lineas de "cron", una por cada dia, por
-# ejemplo:
-#   - cron: '0 9 8 * *'    # bancos con dia 8
-#   - cron: '0 9 15 * *'   # bancos con dia 15
-# El script (Pipeline_Auditoria_Confirming.py) sabria distinguir cual de
-# los cron ha disparado la ejecucion por la variable de entorno
-# GITHUB_EVENT_SCHEDULE, y procesaria solo los bancos que le tocaran ese
-# dia (ver el comentario "EXTENSION" al final de ese archivo).
+  # Mantiene el botón "Run workflow"
+  workflow_dispatch: {}
 
 jobs:
   procesar:
     runs-on: ubuntu-latest
+
     steps:
       - name: Descargar el codigo del repositorio
         uses: actions/checkout@v4
@@ -32,7 +25,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instalar LibreOffice y Tesseract (aplicaciones del sistema)
+      - name: Instalar LibreOffice y Tesseract
         run: |
           sudo apt-get update
           sudo apt-get install -y libreoffice tesseract-ocr tesseract-ocr-spa poppler-utils
