@@ -1,4 +1,4 @@
-name: Pipeline Auditoria Confirming (Mensual)
+name: Pipeline confirming mensual
 
 # PROGRAMACIÓN DEL WORKFLOW
 # Este bloque establece cuándo debe iniciarse el pipeline.
