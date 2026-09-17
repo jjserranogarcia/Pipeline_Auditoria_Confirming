@@ -1,39 +1,48 @@
-name: Pipeline confirming mensual
+name: Pipeline Auditoria Confirming (Mensual)
+
+# PROGRAMACIÓN DEL WORKFLOW
+# Este bloque establece cuándo debe iniciarse el pipeline.
+# Cron programa la ejecución mensual en horario UTC, mientras que 
+# workflow_dispatch mantiene disponible una ejecución manual desde la pestaña Actions. 
 
 on:
   schedule:
-    # Ejecución mensual habitual: día 8 a las 09:00 UTC
-    - cron: '0 9 8 * *'
-
-    # Ejecución extraordinaria: 14 de septiembre a las 22:45 de España
-    - cron: '45 22 14 9 *'
+    # Orden de los campos: minuto, hora, día del mes, mes y día de la semana.
+    - cron: '0 3 8 * *'   # Día 8 de cada mes a las 03:00 de Madrid.
       timezone: 'Europe/Madrid'
+  workflow_dispatch: {}    # Añade el botón "Run workflow" para iniciar una prueba manual.
 
-  # Mantiene el botón "Run workflow"
-  workflow_dispatch: {}
+# Si en el futuro cada banco necesitara un día distinto, podrían añadirse
+# varias expresiones cron. Pipeline_Auditoria_Confirming.py podría consultar
+# GITHUB_EVENT_SCHEDULE para conocer qué programación inició el workflow y
+# seleccionar únicamente los bancos asociados a esa fecha.
 
 jobs:
   procesar:
     runs-on: ubuntu-latest
-
     steps:
+      # Descarga el contenido del repositorio en la máquina virtual de GitHub.
       - name: Descargar el codigo del repositorio
         uses: actions/checkout@v4
 
+      # Prepara la versión de Python utilizada por el pipeline.
       - name: Instalar Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Instalar LibreOffice y Tesseract
+      # Instala las aplicaciones necesarias para convertir archivos y aplicar OCR.
+      - name: Instalar LibreOffice y Tesseract (aplicaciones del sistema)
         run: |
           sudo apt-get update
           sudo apt-get install -y libreoffice tesseract-ocr tesseract-ocr-spa poppler-utils
 
+      # Incorpora las bibliotecas que permiten leer PDF, Excel y crear el informe.
       - name: Instalar las librerias de Python
         run: |
           pip install pypdf openpyxl pytesseract pillow pydrive2 oauth2client reportlab
 
+      # Entrega los Secrets como variables de entorno y ejecuta el programa principal.
       - name: Ejecutar el pipeline
         env:
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
