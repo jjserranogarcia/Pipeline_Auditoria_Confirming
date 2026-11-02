@@ -1,4 +1,4 @@
-# Pipeline de auditoría de bonificaciones de confirming
+# Pipeline de auditoría de bonificaciones de confirming - Automatización en Python
 
 **Pipeline ETL en Python que automatiza la extracción, comprobación y monitorización de bonificaciones de confirming**, utilizando Google Drive para gestionar los documentos y GitHub Actions para ejecutar el proceso.
 
