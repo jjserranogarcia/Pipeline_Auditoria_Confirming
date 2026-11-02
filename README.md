@@ -8,7 +8,7 @@
 
 En el *confirming*, los proveedores pueden **anticipar el cobro de sus facturas**. El banco cobra una comisión e intereses por el anticipo y entrega una parte de esos ingresos a la sociedad pagadora en concepto de **bonificación**.
 
-![Funcionamiento del confirming y reparto de las bonificaciones](imagenes/01_Explicacion_Confirming.png)
+![Funcionamiento del confirming y reparto de las bonificaciones](Imagenes/01_Explicacion_Confirming.png)
 
 El proyecto sustituye la revisión manual de esas bonificaciones en Excel por un proceso automatizado. El supuesto contempla **8 sociedades y 8 bancos**, es decir, **64 documentos por ejecución mensual completa**.
 
@@ -16,7 +16,7 @@ El proyecto sustituye la revisión manual de esas bonificaciones en Excel por un
 
 Cada banco presenta la información de forma diferente. El pipeline identifica el banco, la sociedad y la fecha a partir del nombre del archivo (`BANCO_SOCIEDAD_FECHA`), y adapta la extracción al formato recibido.
 
-![Sociedades, bancos, estructuras documentales y tecnologías de extracción](imagenes/02_Contexto_Sociedades_Bancos_Documentos.png)
+![Sociedades, bancos, estructuras documentales y tecnologías de extracción](Imagenes/02_Contexto_Sociedades_Bancos_Documentos.png)
 
 - **6 bancos:** PDF con texto extraíble, tratados con `pypdf` y expresiones regulares.
 - **1 banco:** PDF escaneado, tratado con Poppler y Tesseract (OCR).
@@ -27,19 +27,19 @@ Cada banco presenta la información de forma diferente. El pipeline identifica e
 
 **PDF con listado de facturas (Oro)**
 
-![PDF con listado de facturas](imagenes/03_Documento_PDF_Lista.png)
+![PDF con listado de facturas](Imagenes/03_Documento_PDF_Lista.png)
 
 **PDF agrupado por proveedor (Plata)**
 
-![PDF con facturas agrupadas por proveedor](imagenes/04_Documento_PDF_Proveedor.png)
+![PDF con facturas agrupadas por proveedor](Imagenes/04_Documento_PDF_Proveedor.png)
 
 **PDF escaneado con datos en dos tablas (Esmeralda)**
 
-![PDF con datos repartidos en dos tablas](imagenes/05_Documento_PDF_Separado.png)
+![PDF con datos repartidos en dos tablas](Imagenes/05_Documento_PDF_Separado.png)
 
 **Libro de Excel (Zafiro)**
 
-![Documento Excel recibido de una entidad bancaria](imagenes/06_Documento_Excel.png)
+![Documento Excel recibido de una entidad bancaria](Imagenes/06_Documento_Excel.png)
 
 </details>
 
@@ -47,7 +47,7 @@ Cada banco presenta la información de forma diferente. El pipeline identifica e
 
 El departamento financiero deposita los documentos en Google Drive. **GitHub Actions ejecuta el pipeline**, que identifica, extrae y normaliza la información, realiza los cálculos y devuelve los resultados a Drive.
 
-![Arquitectura funcional del pipeline automatizado](imagenes/07_Arquitectura_Funcional.png)
+![Arquitectura funcional del pipeline automatizado](Imagenes/07_Arquitectura_Funcional.png)
 
 [Ver también el diagrama técnico del repositorio en GitDiagram](https://gitdiagram.com/jjserranogarcia/pipeline_auditoria_confirming?utm_source=readme&utm_medium=picture).
 
@@ -55,7 +55,7 @@ El departamento financiero deposita los documentos en Google Drive. **GitHub Act
 
 Para cada factura, el programa **recalcula la parte de comisión e interés que corresponde a Grupo Prisma**, aplicando el porcentaje de reparto y una base de **360 días** para el interés. Después compara ambos importes con los comunicados por el banco y registra las diferencias.
 
-![Documento procesado con cálculos y diferencias de bonificaciones](imagenes/08_Documento_Generado.png)
+![Documento procesado con cálculos y diferencias de bonificaciones](Imagenes/08_Documento_Generado.png)
 
 El resultado permite al departamento financiero localizar discrepancias y decidir cuáles requieren revisión o reclamación.
 
@@ -63,7 +63,7 @@ El resultado permite al departamento financiero localizar discrepancias y decidi
 
 Cada documento de entrada genera un **Excel procesado** y un **PDF de revisión**. Además, el programa actualiza el **histórico acumulado en CSV**, archiva los originales en Google Drive y crea un **PDF de monitorización** de la ejecución.
 
-![Informe de monitorización que registra los documentos procesados](imagenes/09_Comprobacion_Generada.png)
+![Informe de monitorización que registra los documentos procesados](Imagenes/09_Comprobacion_Generada.png)
 
 El informe de monitorización identifica los documentos procesados por sociedad y banco y comprueba si se han recibido las **64 combinaciones esperadas**.
 
@@ -71,7 +71,7 @@ El informe de monitorización identifica los documentos procesados por sociedad 
 
 El workflow [`mensual.yml`](.github/workflows/mensual.yml) programa la ejecución para el **día 8 de cada mes** y también permite lanzarla manualmente desde **GitHub Actions**.
 
-![Ejecuciones del pipeline en GitHub Actions y opción de ejecución manual](imagenes/10_Pipeline_Automatizado.png)
+![Ejecuciones del pipeline en GitHub Actions y opción de ejecución manual](Imagenes/10_Pipeline_Automatizado.png)
 
 **Tecnologías:** Python 3.11, `pypdf`, `openpyxl`, Poppler, Tesseract, LibreOffice, ReportLab, Google Drive API, PyDrive2, OAuth 2.0 y GitHub Actions.
 
