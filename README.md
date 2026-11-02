@@ -49,7 +49,7 @@ El departamento financiero deposita los documentos en Google Drive. **GitHub Act
 
 ![Arquitectura funcional del pipeline automatizado](Imagenes/07_Arquitectura_Funcional.png)
 
-[Ver también el diagrama técnico del repositorio en GitDiagram](https://gitdiagram.com/jjserranogarcia/pipeline_auditoria_confirming?utm_source=readme&utm_medium=picture).
+[Ver también el diagrama técnico del repositorio en GitDiagram](Imagenes/00_Diagrama.png).
 
 ## 4. 🔎 Comprobación de bonificaciones
 
