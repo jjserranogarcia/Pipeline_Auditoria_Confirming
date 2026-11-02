@@ -82,12 +82,6 @@ El workflow [`mensual.yml`](.github/workflows/mensual.yml) programa la ejecució
 
 La conexión con Drive utiliza **credenciales OAuth 2.0 guardadas en los Secrets de GitHub**, sin publicarlas en el código.
 
-## 7. ✅ Validación y limitaciones
+## 7. 📊 Proyecto complementario: Power BI
 
-La prueba completa procesó **64 documentos simulados sin incidencias**, generó los informes y actualizó el histórico. La auditoría automática detecta diferencias, pero **la decisión sobre una posible reclamación corresponde al departamento financiero**.
-
-La extracción depende del formato de los documentos bancarios y los PDF escaneados pueden contener errores de reconocimiento OCR.
-
-## 8. 📊 Proyecto complementario: Power BI
-
-El **histórico CSV producido por este pipeline** alimenta el dashboard **[Reporte_Auditoria_Confirming](https://github.com/jjserranogarcia/Reporte_Auditoria_Confirming)**, que permite analizar importes anticipados y bonificaciones por sociedad, banco, proveedor y región.
+El **histórico CSV producido por este pipeline** alimenta el dashboard **[Reporte_Auditoria_Confirming](https://github.com/jjserranogarcia/Reporte_Auditoria_Confirming/blob/main/README.md)**, que permite analizar importes anticipados y bonificaciones por sociedad, banco, proveedor y región.
