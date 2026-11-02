@@ -1,16 +1,88 @@
-Pipeline de extracción, transformación y carga de datos para automatizar la revisión de las bonificaciones de confirming de un holding ficticio llamado Grupo Prisma. 
+# Pipeline de auditoría de bonificaciones de confirming
 
-Este holding empresarial está compuesto por ocho sociedades las cuales trabajan con ocho bancos, por lo que una ejecución mensual completa incluye 64 combinaciones sociedad-banco. 
+**Pipeline ETL en Python que automatiza la extracción, comprobación y monitorización de bonificaciones de confirming**, utilizando Google Drive para gestionar los documentos y GitHub Actions para ejecutar el proceso.
 
-Este proyecto sustituye el proceso manual de copia de los datos en un documento Excel en el que se aplican fórmulas para realizar las comprobaciones por el departamento financiero, por un proceso automatizado y periódico más eficiente que minimiza la carga de trabajo de los empleados y reduce el riesgo de errores humanos.
+> **Datos ficticios:** Grupo Prisma, las sociedades, los bancos, los proveedores y las operaciones se han simulado con fines demostrativos.
 
-Los documentos de entrada (bonificaciones de confirming) son simulados y reproducen tres situaciones habituales: 
-1.	documentos PDF con texto extraíble (emitidos por 6 bancos)
-2.	PDF escaneado sin texto extraíble (emitido por 1 banco)
-3.	documento de Excel (emitido por 1 banco)
+## 1. 🎯 Contexto y objetivo
 
-El programa identifica el banco, la sociedad y la fecha, y a continuación extrae y normaliza los datos con reglas adaptadas a cada banco, recalcula la parte de comisión e interés correspondiente a la empresa del holding, y compara ese importe con el comunicado y abonado por el banco.
+En el *confirming*, los proveedores pueden **anticipar el cobro de sus facturas**. El banco cobra una comisión e intereses por el anticipo y entrega una parte de esos ingresos a la sociedad pagadora en concepto de **bonificación**.
 
-Finalmente, el pipeline genera como resultado un Excel y un PDF procesados por cada documento de entrada, actualiza una base de datos en formato CSV, archiva el original y crea un PDF para monitorizar el correcto funcionamiento de cada ejecución del código. 
+![Funcionamiento del confirming y reparto de las bonificaciones](imagenes/01_Explicacion_Confirming.png)
 
-Para llevar a cabo este proceso, GitHub Actions prepara una máquina virtual temporal y ejecuta el programa desarrollado de forma periódica y automática, y Google Drive junto con OAuth 2.0 actúa como espacio de entrada y salida de documentos.
+El proyecto sustituye la revisión manual de esas bonificaciones en Excel por un proceso automatizado. El supuesto contempla **8 sociedades y 8 bancos**, es decir, **64 documentos por ejecución mensual completa**.
+
+## 2. 📥 Documentos de entrada
+
+Cada banco presenta la información de forma diferente. El pipeline identifica el banco, la sociedad y la fecha a partir del nombre del archivo (`BANCO_SOCIEDAD_FECHA`), y adapta la extracción al formato recibido.
+
+![Sociedades, bancos, estructuras documentales y tecnologías de extracción](imagenes/02_Contexto_Sociedades_Bancos_Documentos.png)
+
+- **6 bancos:** PDF con texto extraíble, tratados con `pypdf` y expresiones regulares.
+- **1 banco:** PDF escaneado, tratado con Poppler y Tesseract (OCR).
+- **1 banco:** archivo Excel, leído mediante `openpyxl`.
+
+<details>
+<summary><strong>Ver ejemplos de los cuatro formatos de entrada</strong></summary>
+
+**PDF con listado de facturas (Oro)**
+
+![PDF con listado de facturas](imagenes/03_Documento_PDF_Lista.png)
+
+**PDF agrupado por proveedor (Plata)**
+
+![PDF con facturas agrupadas por proveedor](imagenes/04_Documento_PDF_Proveedor.png)
+
+**PDF escaneado con datos en dos tablas (Esmeralda)**
+
+![PDF con datos repartidos en dos tablas](imagenes/05_Documento_PDF_Separado.png)
+
+**Libro de Excel (Zafiro)**
+
+![Documento Excel recibido de una entidad bancaria](imagenes/06_Documento_Excel.png)
+
+</details>
+
+## 3. 🗺️ Arquitectura del proceso
+
+El departamento financiero deposita los documentos en Google Drive. **GitHub Actions ejecuta el pipeline**, que identifica, extrae y normaliza la información, realiza los cálculos y devuelve los resultados a Drive.
+
+![Arquitectura funcional del pipeline automatizado](imagenes/07_Arquitectura_Funcional.png)
+
+[Ver también el diagrama técnico del repositorio en GitDiagram](https://gitdiagram.com/jjserranogarcia/pipeline_auditoria_confirming?utm_source=readme&utm_medium=picture).
+
+## 4. 🔎 Comprobación de bonificaciones
+
+Para cada factura, el programa **recalcula la parte de comisión e interés que corresponde a Grupo Prisma**, aplicando el porcentaje de reparto y una base de **360 días** para el interés. Después compara ambos importes con los comunicados por el banco y registra las diferencias.
+
+![Documento procesado con cálculos y diferencias de bonificaciones](imagenes/08_Documento_Generado.png)
+
+El resultado permite al departamento financiero localizar discrepancias y decidir cuáles requieren revisión o reclamación.
+
+## 5. 📤 Resultados y monitorización
+
+Cada documento de entrada genera un **Excel procesado** y un **PDF de revisión**. Además, el programa actualiza el **histórico acumulado en CSV**, archiva los originales en Google Drive y crea un **PDF de monitorización** de la ejecución.
+
+![Informe de monitorización que registra los documentos procesados](imagenes/09_Comprobacion_Generada.png)
+
+El informe de monitorización identifica los documentos procesados por sociedad y banco y comprueba si se han recibido las **64 combinaciones esperadas**.
+
+## 6. ⚙️ Automatización y tecnologías
+
+El workflow [`mensual.yml`](.github/workflows/mensual.yml) programa la ejecución para el **día 8 de cada mes** y también permite lanzarla manualmente desde **GitHub Actions**.
+
+![Ejecuciones del pipeline en GitHub Actions y opción de ejecución manual](imagenes/10_Pipeline_Automatizado.png)
+
+**Tecnologías:** Python 3.11, `pypdf`, `openpyxl`, Poppler, Tesseract, LibreOffice, ReportLab, Google Drive API, PyDrive2, OAuth 2.0 y GitHub Actions.
+
+La conexión con Drive utiliza **credenciales OAuth 2.0 guardadas en los Secrets de GitHub**, sin publicarlas en el código.
+
+## 7. ✅ Validación y limitaciones
+
+La prueba completa procesó **64 documentos simulados sin incidencias**, generó los informes y actualizó el histórico. La auditoría automática detecta diferencias, pero **la decisión sobre una posible reclamación corresponde al departamento financiero**.
+
+La extracción depende del formato de los documentos bancarios y los PDF escaneados pueden contener errores de reconocimiento OCR.
+
+## 8. 📊 Proyecto complementario: Power BI
+
+El **histórico CSV producido por este pipeline** alimenta el dashboard **[Reporte_Auditoria_Confirming](https://github.com/jjserranogarcia/Reporte_Auditoria_Confirming)**, que permite analizar importes anticipados y bonificaciones por sociedad, banco, proveedor y región.
